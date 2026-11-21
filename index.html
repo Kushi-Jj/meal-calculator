@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meal Portion Calculator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#eef5ef;--card:#fff;--tx:#1d2a20;--mut:#617066;--ac:#2f7d4f;--bd:#dbe6dc;--warn:#a85a00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a16;--card:#1d2620;--tx:#e8efe9;--mut:#9fb0a4;--ac:#5fc08a;--bd:#2d3a31;--warn:#e0a24d}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:720px;margin:0 auto;padding:14px}
+.hero{background:linear-gradient(135deg,#2f7d4f,#6bbf8a);color:#fff;border-radius:20px;padding:20px 18px;margin-bottom:8px}.hero h1{font-size:1.45rem;margin:0}.hero p{margin:4px 0 0;opacity:.92;font-size:.9rem}.ringwrap{display:flex;align-items:center;gap:14px}.bar{display:grid;grid-template-columns:62px 1fr auto;gap:8px;align-items:center;font-size:.82rem;margin:7px 0}.tr{height:10px;background:var(--bd);border-radius:9px;overflow:hidden}.tr i{display:block;height:100%;border-radius:9px;background:var(--c,var(--ac));transition:width .8s}.streak{display:inline-block;background:#fff3e0;color:#b45309;border-radius:999px;padding:3px 10px;font-weight:700;font-size:.85rem}.dots{display:flex;gap:5px;margin:8px 0 2px}.dots i{width:14px;height:14px;border-radius:50%;background:var(--bd)}.dots i.on{background:var(--ac)}.cf{position:fixed;top:-30px;font-size:24px;animation:fall 1.7s ease-in forwards;pointer-events:none;z-index:9}@keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:.3}}.card{animation:up .4s both}@keyframes up{from{opacity:0;transform:translateY(8px)}}h2{font-size:1.05rem;margin:0 0 8px}.lab{margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)}.lab h3{margin:0 0 4px;font-size:1rem}details{margin:6px 0}summary{cursor:pointer;color:var(--ac);font-weight:600}.cat{margin:10px 0 2px;font-weight:600;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 2px 10px rgba(30,70,40,.07)}
+.mut{color:var(--mut);font-size:.85rem}.warn{color:var(--warn);font-size:.9rem}
+nav{display:flex;gap:4px;margin:12px 0;background:var(--card);border:1px solid var(--bd);border-radius:999px;padding:4px}nav button{flex:1;border:0;border-radius:999px;background:transparent;font-weight:600}nav button.on{background:var(--ac);color:#fff}
+button,input,select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px}
+button{cursor:pointer}button.on,button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px}label{display:block;font-size:.8rem;color:var(--mut)}
+label input,label select{width:100%;margin-top:2px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.chips label{display:inline-flex;gap:5px;align-items:center;margin:4px 6px 4px 0;padding:6px 12px;border:1px solid var(--bd);border-radius:999px;color:var(--tx);font-size:.9rem;cursor:pointer}.chips label:has(input:checked){background:var(--ac);color:#fff;border-color:var(--ac)}
+.chips input{width:auto;margin:0}
+</style></head><body><main>
+<div class="hero"><h1>🥗 Meal Portion Calculator</h1><p>Personalized portions in grams, for the whole family</p></div>
+<div class="mut">Estimates only. Not medical advice and no substitute for a dietitian or doctor. Data stays on this device.</div>
+<nav><button id="t0" class="on">🏠 Today</button><button id="t2">🍽 Meal</button><button id="t1">👤 Profiles</button></nav>
+<div id="v0"></div><div id="v1" hidden></div><div id="v2" hidden></div>
+</main>
+<script>
+// Approximate per-100 g values (USDA-style, entered from general knowledge: verify before relying on them).
+// [name, kcal, protein, carbs, fat, satFat, fiber, maxG, category]
+const FOODS=[["Rolled oats (dry)",379,13.2,67.7,6.5,1.1,10.1,120,"Grains"],["Brown rice (cooked)",112,2.3,23.5,0.8,0.2,1.8,300,"Grains"],["Whole-grain bread",247,13,41,3.4,0.7,7,120,"Grains"],["Quinoa (cooked)",120,4.4,21.3,1.9,0.2,2.8,250,"Grains"],["Sweet potato (baked)",90,2,20.7,0.2,0.05,3.3,250,"Grains"],
+["Skim milk",34,3.4,5,0.1,0.1,0,400,"Dairy"],["1% milk",42,3.4,5,1,0.6,0,400,"Dairy"],["Low-fat Greek yogurt",73,10,3.9,1.9,1.2,0,300,"Dairy"],
+["Blueberries",57,0.7,14.5,0.3,0.03,2.4,200,"Fruit"],["Banana",89,1.1,22.8,0.3,0.1,2.6,150,"Fruit"],["Apple",52,0.3,13.8,0.2,0.03,2.4,200,"Fruit"],["Avocado",160,2,8.5,14.7,2.1,6.7,100,"Fruit"],
+["Walnuts",654,15.2,13.7,65.2,6.1,6.7,40,"Nuts & seeds"],["Almonds",579,21.2,21.6,49.9,3.8,12.5,40,"Nuts & seeds"],["Chia seeds",486,16.5,42.1,30.7,3.3,34.4,30,"Nuts & seeds"],["Flaxseeds",534,18.3,28.9,42.2,3.7,27.3,30,"Nuts & seeds"],
+["Chicken breast (cooked)",165,31,0,3.6,1,0,200,"Protein"],["Salmon (cooked)",206,22.1,0,12.4,2.6,0,200,"Protein"],["Egg (boiled)",155,12.6,1.1,10.6,3.3,0,150,"Protein"],["Tofu (firm)",144,15.8,2.8,8.7,1.3,2.3,200,"Protein"],
+["Red lentils (cooked)",116,9,20.1,0.4,0.05,7.9,300,"Legumes"],["Chickpeas (cooked)",164,8.9,27.4,2.6,0.3,7.6,250,"Legumes"],["Black beans (cooked)",132,8.9,23.7,0.5,0.1,8.7,250,"Legumes"],
+["Broccoli (cooked)",35,2.4,7.2,0.4,0.05,3.3,250,"Vegetables"],["Spinach (raw)",23,2.9,3.6,0.4,0.06,2.2,150,"Vegetables"],["Carrots (raw)",41,0.9,9.6,0.2,0.04,2.8,200,"Vegetables"]]
+.map((a,i)=>({id:i,name:a[0],kcal:a[1],protein:a[2],carbs:a[3],fat:a[4],sat:a[5],fiber:a[6],max:a[7],cat:a[8]}));
+const SPLIT={Breakfast:.25,Lunch:.35,Dinner:.30,Snack:.10},FACT={sedentary:1.2,light:1.375,moderate:1.55,very:1.725};
+const W={protein:3,fiber:2.5,kcal:2,fat:1,carbs:1},K=["kcal","protein","carbs","fat","fiber"];
+let P=[];try{P=JSON.parse(localStorage.getItem("profiles")||"[]")}catch(e){}
+const save=()=>{try{localStorage.setItem("profiles",JSON.stringify(P))}catch(e){}};
+P.forEach(p=>{p.id=p.id||Math.random().toString(36).slice(2)});save();
+let LOG={};try{LOG=JSON.parse(localStorage.getItem("log")||"{}")}catch(e){}
+const saveLog=()=>{try{localStorage.setItem("log",JSON.stringify(LOG))}catch(e){}};
+const ds=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+
+const lastLab=p=>(p.labs||[]).slice().sort((a,b)=>b.date.localeCompare(a.date))[0]||{ldl:p.ldl,tg:p.tg};
+function age(d){const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()==b.getMonth()&&n.getDate()<b.getDate()))a--;return a}
+function targets(p){
+  const w=[],a=age(p.dob),bmr=10*p.w+6.25*p.h-5*a+(p.sex=="male"?5:-161),tdee=bmr*FACT[p.act];let kcal=tdee;
+  if(p.goal=="lose")kcal=Math.max(tdee*.85,tdee-500);if(p.goal=="gain")kcal=tdee*1.1;
+  const fl=p.sex=="male"?1500:1200;if(kcal<fl){w.push("Calculated energy was under "+fl+" kcal, so it was raised to that minimum. Please see a clinician for a lower target.");kcal=fl}
+  if(a<18)w.push("These estimates are for adults. For under-18s, ask a pediatric dietitian.");
+  const L=lastLab(p),ldl=L.ldl>=130||p.goal=="cholesterol",tg=L.tg>=150;
+  const protein=Math.min(p.w*(p.goal=="lose"||p.goal=="gain"?1.2:.9),kcal*.35/4),fat=kcal*.3/9,sat=kcal*(ldl?.06:.10)/9,carbs=(kcal-protein*4-fat*9)/4;
+  if(carbs<130)w.push("Carbohydrate target is under 130 g/day. Check this plan with a dietitian.");
+  return{kcal,protein,carbs,fat,fiber:Math.max(14*kcal/1000,25),sat,sugar:kcal*(tg?.05:.10)/4,age:a,warnings:w,ldl,tg}
+}
+// Bounded weighted least squares (projected gradient) with a saturated-fat penalty.
+function optimize(foods,t){
+  const g=foods.map(f=>Math.min(50,f.max)),n=(f,k)=>(k=="sat"?f.sat:f[k])/100,tot=k=>foods.reduce((s,f,i)=>s+g[i]*n(f,k),0);
+  let L=0;foods.forEach(f=>{K.forEach(k=>L+=2*W[k]*(n(f,k)/t[k])**2);L+=12*(n(f,"sat")/t.sat)**2});const st=1/L;
+  for(let it=0;it<20000;it++){
+    const r={};K.forEach(k=>r[k]=(tot(k)-t[k])/t[k]);const s=tot("sat"),sr=s>t.sat?(s-t.sat)/t.sat:0;let mv=0;
+    const gr=foods.map(f=>{let d=0;K.forEach(k=>d+=2*W[k]*r[k]*n(f,k)/t[k]);return d+12*sr*n(f,"sat")/t.sat});
+    foods.forEach((f,i)=>{const ng=Math.min(f.max,Math.max(0,g[i]-st*gr[i]));mv=Math.max(mv,Math.abs(ng-g[i]));g[i]=ng});
+    if(mv<1e-4)break}
+  foods.forEach((f,i)=>g[i]=Math.round(g[i]/5)*5);
+  const T={};[...K,"sat"].forEach(k=>T[k]=tot(k));
+  const dev={};K.forEach(k=>dev[k]=(T[k]-t[k])/t[k]*100);
+  const why=foods.map((f,i)=>{const b=K.map(k=>({k,s:T[k]?g[i]*n(f,k)/T[k]:0})).sort((x,y)=>y.s-x.s)[0],o=[];
+    if(b.s>.05)o.push("supplies "+Math.round(b.s*100)+"% of this meal’s "+b.k);if(g[i]>=f.max)o.push("limited by its maximum portion");if(g[i]==0)o.push("not needed to reach targets");return o.join("; ")});
+  const iss=[];["kcal","protein","fiber"].forEach(k=>{if(Math.abs(dev[k])>15){const sh=dev[k]<0;let m=k+" is "+Math.round(Math.abs(dev[k]))+"% "+(sh?"below":"above")+" this meal’s target with these foods.";
+    if(sh){const have=new Set(foods.map(f=>f.id)),alt=FOODS.filter(f=>!have.has(f.id)&&f.kcal>0).sort((a,b)=>b[k]/b.kcal-a[k]/a.kcal).slice(0,3).map(f=>f.name);m+=" Consider adding: "+alt.join(", ")+"."}iss.push(m)}});
+  if(T.sat>t.sat*1.05)iss.push("Saturated fat is above this meal’s limit. Consider swapping the highest saturated-fat food.");
+  return{g,T,dev,why,iss}
+}
+
+const MET=[["tc","Total"],["ldl","LDL"],["hdl","HDL"],["tg","Triglycerides"],["nonhdl","Non-HDL"],["lpa","Lp(a)"]];
+function spark(v){if(v.length<2)return"";const mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1;return `<svg width="70" height="22" viewBox="0 0 70 22"><polyline fill="none" stroke="var(--ac)" stroke-width="2" points="${v.map((x,j)=>(j*66/(v.length-1)+2)+","+(20-(x-mn)/r*18)).join(" ")}"/></svg>`}
+function labHTML(p,i){
+ const L=(p.labs||[]).slice().sort((a,b)=>a.date.localeCompare(b.date)),la=L[L.length-1],pr=L[L.length-2];
+ const rows=la?MET.filter(m=>la[m[0]]!=null).map(m=>{const v=la[m[0]],d=pr&&pr[m[0]]!=null?v-pr[m[0]]:null;return `<tr><td>${m[1]}</td><td><b>${v}</b></td><td class="mut">${d==null?"–":(d>0?"▲ +":"▼ ")+(+d.toFixed(1))}</td><td>${spark(L.filter(x=>x[m[0]]!=null).map(x=>x[m[0]]))}</td></tr>`}).join(""):"";
+ return `<div class="lab"><h3>🩸 Blood tests</h3>${la?`<div class="mut">Latest: ${la.date} (change vs ${pr?pr.date:"no earlier test"}). Your targets use this result.</div><div class="scroll"><table><tr><th></th><th>Value</th><th>Change</th><th>Trend</th></tr>${rows}</table></div>`:'<div class="mut">No results yet. Targets use standard guidelines.</div>'}
+ ${la&&la.hdl<(p.sex=="male"?40:50)?'<p class="mut">Nutrition consideration: HDL is low. Physical activity and an overall heart-healthy eating pattern are emphasized.</p>':""}${la&&la.lpa>=(la.lpaUnit=="nmol/L"?125:50)?'<p class="mut">Lp(a) is elevated: please discuss individualized LDL targets with a healthcare professional.</p>':""}
+ <details><summary>Add new blood test</summary><div class="mut">Only when you get new results (for example once a year). Leave out values you don’t have.</div><div class="g"><label>Test date<input id="bd${i}" type="date"></label><label>Total (mg/dL)<input id="btc${i}" type="number"></label><label>LDL<input id="bldl${i}" type="number"></label><label>HDL<input id="bhdl${i}" type="number"></label><label>Triglycerides<input id="btg${i}" type="number"></label><label>Lp(a)<input id="blpa${i}" type="number"></label><label>Lp(a) unit<select id="bu${i}"><option>mg/dL</option><option>nmol/L</option></select></label></div><p><button data-b="${i}">Save test</button></p></details>
+ ${(p.labs||[]).length?`<details><summary>History (${p.labs.length})</summary>${L.map(x=>`<div>${x.date} · LDL ${x.ldl??"–"} · HDL ${x.hdl??"–"} · TG ${x.tg??"–"} <button data-x="${i}|${x.date}">✕</button></div>`).join("")}</details>`:""}</div>`}
+function ring(pc,big,sub){const c=2*Math.PI*44,f=Math.min(pc,1)*c;return `<svg width="124" height="124" viewBox="0 0 120 120"><circle cx="60" cy="60" r="44" fill="none" stroke="var(--bd)" stroke-width="12"/><circle cx="60" cy="60" r="44" fill="none" stroke="var(--ac)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${f} ${c}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" font-size="22" font-weight="700" fill="var(--tx)">${big}</text><text x="60" y="76" text-anchor="middle" font-size="10" fill="var(--mut)">${sub}</text></svg>`}
+const bar=(l,v,t,c)=>`<div class="bar"><span>${l}</span><div class="tr"><i style="width:${Math.min(100,v/t*100)}%;--c:${c}"></i></div><b>${Math.round(v)}/${Math.round(t)} g</b></div>`;
+function streak(p){const L=LOG[p.id]||{};let s=0,d=new Date();if(!(L[ds(d)]&&L[ds(d)].n))d.setDate(d.getDate()-1);while(L[ds(d)]&&L[ds(d)].n){s++;d.setDate(d.getDate()-1)}return s}
+function confetti(){for(let i=0;i<26;i++){const s=document.createElement("span");s.className="cf";s.textContent=["🥑","🍓","🥦","⭐","🫐"][i%5];s.style.left=Math.random()*100+"vw";s.style.animationDelay=Math.random()*.4+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),2300)}}
+function viewToday(){
+ if(!P.length){$("v0").innerHTML='<div class="card"><h2>Welcome 👋</h2><p>Start by adding a profile for yourself, then build your first meal.</p><button class="pri" id="gp">Add a profile</button></div>';$("gp").onclick=()=>show("t1");return}
+ $("v0").innerHTML=P.map(p=>{const t=targets(p),L=LOG[p.id]||{},e=L[ds(new Date())]||{kcal:0,protein:0,carbs:0,fat:0,fiber:0,sat:0,n:0},pc=e.kcal/t.kcal,s=streak(p);
+  const days=[6,5,4,3,2,1,0].map(n=>{const d=new Date();d.setDate(d.getDate()-n);return `<i class="${L[ds(d)]&&L[ds(d)].n?"on":""}"></i>`}).join("");
+  const msg=pc==0?"Fresh day. Log your first meal!":pc<.5?"Great start, keep it going.":pc<.9?"Almost there!":pc<=1.1?"Day complete! 🎉":"Over today’s target. Tomorrow is a new day.";
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>${esc(p.name)}</h2><span class="streak">🔥 ${s} day${s==1?"":"s"}</span></div><div class="ringwrap">${ring(pc,Math.round(e.kcal),"of "+Math.round(t.kcal)+" kcal")}<div><b>${msg}</b><div class="dots">${days}</div><div class="mut">Last 7 days</div></div></div>${bar("Protein",e.protein,t.protein,"#e76f51")}${bar("Carbs",e.carbs,t.carbs,"#e9a23b")}${bar("Fat",e.fat,t.fat,"#4c8fd6")}${bar("Fiber",e.fiber,t.fiber,"#2f7d4f")}${bar("Sat. fat",e.sat,t.sat,"#8e6bbf")}<p class="mut">Saturated fat is a limit, not a goal.</p></div>`}).join("")+'<button class="pri" id="pm" style="width:100%;padding:14px;font-size:1.05rem">🍽 Plan a meal</button>';
+ $("pm").onclick=()=>show("t2")}
+function viewProfiles(){
+  const cards=P.map((p,i)=>{const t=targets(p);return `<div class="card"><h2>${esc(p.name)} <span class="mut">(${t.age} y)</span></h2>
+  <div class="mut">Estimated daily targets</div><div class="scroll"><table><tr><th>kcal</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Sat. fat max</th><th>Fiber</th><th>Added sugar max</th></tr>
+  <tr><td>${Math.round(t.kcal)}</td><td>${Math.round(t.protein)} g</td><td>${Math.round(t.carbs)} g</td><td>${Math.round(t.fat)} g</td><td>${Math.round(t.sat)} g</td><td>${Math.round(t.fiber)} g</td><td>${Math.round(t.sugar)} g</td></tr></table></div>
+  ${t.ldl?'<p class="mut">Nutrition consideration: saturated fat is kept lower and soluble-fiber foods are encouraged. Please discuss your results with a healthcare professional.</p>':""}
+  ${t.tg?'<p class="mut">Nutrition consideration: watch added sugar, refined carbohydrates and alcohol.</p>':""}
+  ${t.warnings.map(x=>`<p class="warn">⚠ ${esc(x)}</p>`).join("")}
+  ${labHTML(p,i)}<p><button data-e="${i}">Edit profile</button> <button data-d="${i}">Delete</button></p></div>`}).join("");
+  $("v1").innerHTML=cards+`<div class="card"><h2 id="ft">Add a profile</h2><div class="g">
+  <label>Full name<input id="n"></label><label>Date of birth<input id="dob" type="date"></label>
+  <label>Sex<select id="sex"><option value="female">Female</option><option value="male">Male</option></select></label>
+  <label>Height (cm)<input id="h" type="number" inputmode="decimal"></label><label>Weight (kg)<input id="w" type="number" inputmode="decimal"></label>
+  <label>Activity<select id="act"><option value="sedentary">Sedentary</option><option value="light">Lightly active</option><option value="moderate">Moderately active</option><option value="very">Very active</option></select></label>
+  <label>Goal<select id="goal"><option value="maintain">Maintain weight</option><option value="lose">Lose weight</option><option value="gain">Gain weight</option><option value="cholesterol">Improve cholesterol levels</option><option value="health">Maintain overall health</option></select></label>
+  </div><p class="mut">Blood test results are added on each profile after saving.</p>
+  <p><button class="pri" id="sv">Save profile</button></p><div id="er" class="warn"></div></div>`;
+  document.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{const i=+b.dataset.b,v=id=>$(id+i).value===""?null:+$(id+i).value,d=$("bd"+i).value;
+    if(!d){alert("Please choose the test date.");return}
+    const x={date:d,tc:v("btc"),ldl:v("bldl"),hdl:v("bhdl"),tg:v("btg"),lpa:v("blpa"),lpaUnit:$("bu"+i).value};
+    if(x.tc!=null&&x.hdl!=null)x.nonhdl=x.tc-x.hdl;
+    if(!["tc","ldl","hdl","tg","lpa"].some(k=>x[k]!=null)){alert("Enter at least one value.");return}
+    P[i].labs=(P[i].labs||[]).filter(y=>y.date!=d).concat(x);save();viewProfiles()});
+  document.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const[i,d]=b.dataset.x.split("|");if(confirm("Delete this test?")){P[+i].labs=P[+i].labs.filter(y=>y.date!=d);save();viewProfiles()}});
+  let ed=-1;
+  $("sv").onclick=()=>{const p={name:$("n").value.trim(),dob:$("dob").value,sex:$("sex").value,h:+$("h").value,w:+$("w").value,act:$("act").value,goal:$("goal").value};
+    if(!p.name||!p.dob||!(p.h>=100&&p.h<=250)||!(p.w>=30&&p.w<=300)){$("er").textContent="Please enter a name, date of birth, height (100–250 cm) and weight (30–300 kg).";return}
+    p.labs=ed>=0?(P[ed].labs||[]):[];p.id=ed>=0?P[ed].id:Math.random().toString(36).slice(2);if(ed>=0)P[ed]=p;else P.push(p);save();viewProfiles()};
+  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{if(confirm("Delete this profile?")){P.splice(+b.dataset.d,1);save();viewProfiles()}});
+  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ed=+b.dataset.e;const p=P[ed];["n:name","dob:dob","sex:sex","h:h","w:w","act:act","goal:goal"].forEach(s=>{const[a,k]=s.split(":");$(a).value=p[k]||""});$("ft").textContent="Edit profile";$("ft").scrollIntoView()});
+}
+function viewMeal(){
+  if(!P.length){$("v2").innerHTML='<div class="card">Add a profile first.</div>';return}
+  const cats=[...new Set(FOODS.map(f=>f.cat))],EM={Grains:"🌾",Dairy:"🥛",Fruit:"🍎","Nuts & seeds":"🥜",Protein:"🍗",Legumes:"🫘",Vegetables:"🥦"};
+  $("v2").innerHTML=`<div class="card"><h2>Whose meal?</h2><div class="chips">${P.map((p,i)=>`<label><input type="checkbox" class="pp" value="${i}" ${i==0?"checked":""}>${esc(p.name)}</label>`).join("")}</div>
+  <label>Meal<select id="slot">${Object.keys(SPLIT).map(s=>`<option>${s}</option>`).join("")}</select></label></div>
+  <div class="card"><h2>Choose foods</h2>${cats.map(c=>`<div class="cat">${EM[c]||""} ${c}</div><div class="chips">${FOODS.filter(f=>f.cat==c).map(f=>`<label><input type="checkbox" class="ff" value="${f.id}">${esc(f.name)}</label>`).join("")}</div>`).join("")}
+  <p><button class="pri" id="go">Calculate portions</button></p></div><div id="out"></div>`;
+  $("go").onclick=()=>{
+    const who=[...document.querySelectorAll(".pp:checked")].map(x=>P[+x.value]),fs=[...document.querySelectorAll(".ff:checked")].map(x=>FOODS[+x.value]);
+    if(!who.length||!fs.length){$("out").innerHTML='<div class="card warn">Select at least one person and one food.</div>';return}
+    const sh=SPLIT[$("slot").value],R=who.map(p=>{const t=targets(p),mt={};K.forEach(k=>mt[k]=t[k]*sh);mt.sat=t.sat*sh;return optimize(fs,mt)});
+    const head=`<tr><th>Food</th>${who.map(p=>`<th>${esc(p.name)}</th>`).join("")}${who.length>1?"<th>Combined</th>":""}</tr>`;
+    const rows=fs.map((f,i)=>`<tr><td>${esc(f.name)}</td>${R.map(r=>`<td>${r.g[i]} g</td>`).join("")}${who.length>1?`<td>${R.reduce((s,r)=>s+r.g[i],0)} g</td>`:""}</tr>`).join("");
+    const kc=`<tr><td class="mut">Meal kcal (target)</td>${R.map((r,j)=>`<td class="mut">${Math.round(r.T.kcal)} (${Math.round(targets(who[j]).kcal*sh)})</td>`).join("")}${who.length>1?"<td></td>":""}</tr>`;
+    $("out").innerHTML=`<div class="card"><h2>Recommended quantities</h2><div class="scroll"><table>${head}${rows}${kc}</table></div></div>`+
+     who.map((p,j)=>`<div class="card"><h2>Why: ${esc(p.name)}</h2><ul>${fs.map((f,i)=>`<li>${esc(f.name)} ${R[j].g[i]} g${R[j].why[i]?" — "+R[j].why[i]:""}</li>`).join("")}</ul>
+      <div class="mut">Protein ${Math.round(R[j].T.protein)} g · Carbs ${Math.round(R[j].T.carbs)} g · Fat ${Math.round(R[j].T.fat)} g · Sat. fat ${R[j].T.sat.toFixed(1)} g · Fiber ${Math.round(R[j].T.fiber)} g</div>
+      ${R[j].iss.map(x=>`<p class="warn">⚠ ${esc(x)}</p>`).join("")}</div>`).join("")+`<p class="mut">Quantities are in grams as listed (cooked or dry, per the food name). Values are estimates.</p>`+`<div class="card"><h2>Happy with it? Log it ✅</h2>${who.map((p,j)=>`<button class="pri" data-l="${j}">${esc(p.name)} ate this</button>`).join(" ")}</div>`;
+    document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{const j=+b.dataset.l,p=who[j],T=R[j].T,d=ds(new Date());LOG[p.id]=LOG[p.id]||{};const e=LOG[p.id][d]=LOG[p.id][d]||{kcal:0,protein:0,carbs:0,fat:0,fiber:0,sat:0,n:0};[...K,"sat"].forEach(k=>e[k]+=T[k]);e.n++;saveLog();b.disabled=true;b.textContent="Logged ✓";confetti()});
+  }
+}
+const TABS=[["t0","v0",viewToday],["t2","v2",viewMeal],["t1","v1",viewProfiles]];
+function show(t){TABS.forEach(x=>{$(x[0]).className=x[0]==t?"on":"";$(x[1]).hidden=x[0]!=t;if(x[0]==t)x[2]()});scrollTo(0,0)}
+TABS.forEach(x=>$(x[0]).onclick=()=>show(x[0]));show("t0");
+</script></body></html>
