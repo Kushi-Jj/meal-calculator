@@ -49,6 +49,9 @@ P.forEach(p=>{p.id=p.id||Math.random().toString(36).slice(2)});save();
 let LOG={};try{LOG=JSON.parse(localStorage.getItem("log")||"{}")}catch(e){}
 const saveLog=()=>{try{localStorage.setItem("log",JSON.stringify(LOG))}catch(e){}};
 const ds=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+let CF=[];try{CF=JSON.parse(localStorage.getItem("foods")||"[]")}catch(e){}
+const saveCF=()=>{try{localStorage.setItem("foods",JSON.stringify(CF))}catch(e){}};
+CF.forEach(c=>FOODS.push({id:FOODS.length,...c,my:true}));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $=id=>document.getElementById(id);
 
@@ -144,11 +147,18 @@ function note(p,fs,r,sh){
  return `<div class="mut" style="margin-top:8px"><p><b>For your LDL:</b> saturated fat is ${sat.toFixed(1)} g, ${sat<=lim*1.05?"within":"above"} this meal’s limit of ${lim.toFixed(1)} g.${sol.length?` Soluble-fiber foods here (${sol.join(", ")}) are part of a heart-healthy eating pattern.`:" Adding oats, beans, lentils, apples or chia would add soluble fiber."}${ug.length?` Unsaturated-fat foods: ${ug.join(", ")}.`:""}</p><p><b>For your weight:</b> this meal gives ${pct}% of the energy planned for it. ${b?`Your BMI is ${bmi.toFixed(1)}, ${b}. `:""}${adv}</p><p>Educational only: food choices can support heart health, but no cholesterol or weight result is guaranteed. Not medical advice.</p></div>`}
 function viewMeal(){
   if(!P.length){$("v2").innerHTML='<div class="card">Add a profile first.</div>';return}
-  const cats=[...new Set(FOODS.map(f=>f.cat))],EM={Grains:"🌾",Dairy:"🥛",Fruit:"🍎","Nuts & seeds":"🥜",Protein:"🍗",Legumes:"🫘",Vegetables:"🥦","Sri Lankan":"🍛"};
+  const cats=[...new Set(FOODS.map(f=>f.cat))],EM={Grains:"🌾",Dairy:"🥛",Fruit:"🍎","Nuts & seeds":"🥜",Protein:"🍗",Legumes:"🫘",Vegetables:"🥦","Sri Lankan":"🍛","My foods":"⭐"};
   $("v2").innerHTML=`<div class="card"><h2>Whose meal?</h2><div class="chips">${P.map((p,i)=>`<label><input type="checkbox" class="pp" value="${i}" ${i==0?"checked":""}>${esc(p.name)}</label>`).join("")}</div>
   <label>Meal<select id="slot">${Object.keys(SPLIT).map(s=>`<option>${s}</option>`).join("")}</select></label></div>
-  <div class="card"><h2>Choose foods</h2>${cats.map(c=>`<div class="cat">${EM[c]||""} ${c}</div><div class="chips">${FOODS.filter(f=>f.cat==c).map(f=>`<label><input type="checkbox" class="ff" value="${f.id}">${esc(f.name)}${f.est?" ≈":""}</label>`).join("")}</div>`).join("")}
+  <div class="card"><h2>Choose foods</h2><input id="fs" placeholder="🔍 Type to search foods…" style="width:100%;margin-bottom:6px">${cats.map(c=>`<div class="cat">${EM[c]||""} ${c}</div><div class="chips">${FOODS.filter(f=>f.cat==c).map(f=>`<label><input type="checkbox" class="ff" value="${f.id}">${esc(f.name)}${f.est?" ≈":""}${f.my?" ★":""}</label>`).join("")}</div>`).join("")}
+  <details><summary>➕ Can’t find a food? Add your own</summary><div class="mut">Enter values per 100 g of the food as you eat it (cooked or raw), from the package label or fdc.nal.usda.gov. Enter 0 where the value is none.</div><div class="g"><label>Food name<input id="cn"></label><label>Category<select id="cat">${["Protein","Vegetables","Fruit","Grains","Dairy","Legumes","Nuts & seeds","Sri Lankan","My foods"].map(c=>`<option>${c}</option>`).join("")}</select></label><label>Calories (kcal)<input id="ck" type="number" inputmode="decimal"></label><label>Protein (g)<input id="cp" type="number" inputmode="decimal"></label><label>Carbs (g)<input id="cc" type="number" inputmode="decimal"></label><label>Total fat (g)<input id="cfat" type="number" inputmode="decimal"></label><label>Saturated fat (g)<input id="cs" type="number" inputmode="decimal"></label><label>Fiber (g)<input id="cb" type="number" inputmode="decimal"></label><label>Max portion (g)<input id="cm" type="number" placeholder="200"></label></div><p><button id="cfs">Save food</button></p>${CF.length?`<div class="mut">Your foods:</div>`+CF.map(c=>`<div>${esc(c.name)} <button data-cd="${c.cid}">✕</button></div>`).join(""):""}</details>
   <p><button class="pri" id="go">Calculate portions</button></p></div><div id="out"></div>`;
+  $("fs").oninput=()=>{const q=$("fs").value.toLowerCase().trim();document.querySelectorAll(".ff").forEach(x=>{const l=x.parentElement;l.style.display=!q||x.checked||l.textContent.toLowerCase().includes(q)?"":"none"})};
+  $("cfs").onclick=()=>{const v=id=>$(id).value.trim(),n=v("cn"),x=["ck","cp","cc","cfat","cs","cb"].map(id=>v(id)===""?NaN:+v(id));
+    if(!n||x.some(y=>isNaN(y)||y<0)||x[0]>900||x[4]>x[3]||x[1]+x[2]+x[3]>100){alert("Please enter a name and all six values per 100 g (0 if none). Calories must be 0–900, saturated fat can’t exceed total fat, and protein + carbs + fat can’t exceed 100 g.");return}
+    const c={cid:Date.now()+"",name:n,cat:v("cat"),kcal:x[0],protein:x[1],carbs:x[2],fat:x[3],sat:x[4],fiber:x[5],max:+v("cm")||200};
+    CF.push(c);saveCF();FOODS.push({id:FOODS.length,...c,my:true});viewMeal()};
+  document.querySelectorAll("[data-cd]").forEach(b=>b.onclick=()=>{if(confirm("Remove this food?")){CF=CF.filter(c=>c.cid!=b.dataset.cd);saveCF();const i=FOODS.findIndex(f=>f.cid==b.dataset.cd);if(i>=0){FOODS.splice(i,1);FOODS.forEach((f,j)=>f.id=j)}viewMeal()}});
   $("go").onclick=()=>{
     const who=[...document.querySelectorAll(".pp:checked")].map(x=>P[+x.value]),fs=[...document.querySelectorAll(".ff:checked")].map(x=>FOODS[+x.value]);
     if(!who.length||!fs.length){$("out").innerHTML='<div class="card warn">Select at least one person and one food.</div>';return}
