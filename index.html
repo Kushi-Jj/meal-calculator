@@ -39,10 +39,12 @@ const FOODS=[["Rolled oats (dry)",379,13.2,67.7,6.5,1.1,10.1,120,"Grains"],["Bro
 ["Green peas (cooked)",84,5.4,15.6,0.2,0.04,5.5,150,"Legumes"],
 ["Lean beef, sirloin (cooked)",183,29,0,6.9,2.7,0,250,"Protein"],["Ground beef 90% lean (cooked)",217,26.1,0,11.7,4.7,0,250,"Protein"],["Ground beef 80/20 full fat (cooked)",272,25.9,0,17.9,7,0,250,"Protein"],["Mutton/goat (cooked)",143,27.1,0,3,0.9,0,250,"Protein"],["Lamb (cooked, lean and fat)",258,25.6,0,16.5,7,0,250,"Protein",1],["Pork tenderloin (cooked)",143,26.2,0,3.5,1.2,0,250,"Protein"],["Pork chop (cooked, lean and fat)",231,26,0,13.5,4.8,0,250,"Protein",1],["Ground pork (cooked)",297,25.7,0,20.8,7.7,0,250,"Protein"],
 ["Chicken cutlet (breaded, fried)",250,18,15,13,3,0.8,150,"Sri Lankan",1],["Fish cutlet (Sri Lankan, fried)",210,9,20,10,2.5,1.2,150,"Sri Lankan",1],["Sri Lankan chicken curry",170,14,3,11,5.5,0.5,300,"Sri Lankan",1],["Sri Lankan mutton curry",190,15,3,13,6,0.5,300,"Sri Lankan",1],["Sri Lankan fish curry",110,13,3,5,2.5,0.3,300,"Sri Lankan",1],["Dhal curry (coconut milk)",110,5,12,4.5,3.5,3,300,"Sri Lankan",1],
+["2% milk",50,3.3,4.8,2,1.3,0,400,"Dairy"],["Unsweetened almond milk",15,0.6,0.6,1.2,0.1,0.2,400,"Dairy"],["Unsweetened soy milk",33,2.9,1.7,1.6,0.2,0.5,400,"Dairy"],["Pumpkin seeds",559,30.2,10.7,49.1,8.7,6,30,"Nuts & seeds"],["Potato (boiled)",87,1.9,20.1,0.1,0.03,1.8,300,"Grains"],["Whole-wheat pasta (cooked)",124,5.3,26.5,0.5,0.1,3.9,250,"Grains"],["Red kidney beans (cooked)",127,8.7,22.8,0.5,0.07,6.4,250,"Legumes"],["Tuna in water (canned)",116,25.5,0,0.8,0.2,0,150,"Protein"],["White fish, cod (cooked)",105,22.8,0,0.9,0.2,0,250,"Protein"],
+["Sri Lankan red rice (cooked)",110,2.5,23,0.9,0.2,1.5,300,"Sri Lankan",1],["String hoppers",140,2.5,30,0.5,0.1,0.8,250,"Sri Lankan",1],["Hoppers (plain)",150,2.5,28,3,2.5,0.8,200,"Sri Lankan",1],["Pittu",140,2.5,28,2.5,2,1.5,250,"Sri Lankan",1],["Pol sambol",330,3,13,30,26,5,40,"Sri Lankan",1],["Mallung (greens with coconut)",90,3,8,5,3.5,3,150,"Sri Lankan",1],
 ["Strawberries",32,0.7,7.7,0.3,0.02,2,250,"Fruit"],["Orange",47,0.9,11.8,0.1,0.02,2.4,250,"Fruit"],["Pear",57,0.4,15.2,0.1,0.02,3.1,200,"Fruit"],["Papaya",43,0.5,10.8,0.3,0.08,1.7,250,"Fruit"],["Mango",60,0.8,15,0.4,0.09,1.6,200,"Fruit"],["Pineapple",50,0.5,13.1,0.1,0.01,1.4,250,"Fruit"],["Watermelon",30,0.6,7.6,0.2,0.02,0.4,300,"Fruit"],["Grapes",69,0.7,18.1,0.2,0.05,0.9,150,"Fruit"],["Guava",68,2.6,14.3,1,0.27,5.4,200,"Fruit"],["Kiwi",61,1.1,14.7,0.5,0.03,3,150,"Fruit"]]
 .map((a,i)=>({id:i,name:a[0],kcal:a[1],protein:a[2],carbs:a[3],fat:a[4],sat:a[5],fiber:a[6],max:a[7],cat:a[8],est:!!a[9]}));
 const SPLIT={Breakfast:.25,Lunch:.35,Dinner:.30,Snack:.10},FACT={sedentary:1.2,light:1.375,moderate:1.55,very:1.725};
-const W={protein:3,fiber:2.5,kcal:2,fat:1,carbs:1},K=["kcal","protein","carbs","fat","fiber"];
+const W={protein:3,fiber:2.5,kcal:6,fat:.5,carbs:.7},K=["kcal","protein","carbs","fat","fiber"];
 let P=[];try{P=JSON.parse(localStorage.getItem("profiles")||"[]")}catch(e){}
 const save=()=>{try{localStorage.setItem("profiles",JSON.stringify(P))}catch(e){}};
 P.forEach(p=>{p.id=p.id||Math.random().toString(36).slice(2)});save();
@@ -67,22 +69,27 @@ function targets(p){
   if(carbs<130)w.push("Carbohydrate target is under 130 g/day. Check this plan with a dietitian.");
   return{kcal,protein,carbs,fat,fiber:Math.max(14*kcal/1000,25),sat,sugar:kcal*(tg?.05:.10)/4,age:a,warnings:w,ldl,tg}
 }
+const RG=.25,lo=f=>Math.max(5,Math.round(f.max*.12/5)*5),typ=f=>Math.max(10,Math.round(f.max*.35/5)*5); // every chosen food keeps a real portion and is gently pulled toward a typical serving
 // Bounded weighted least squares (projected gradient) with a saturated-fat penalty.
 function optimize(foods,t){
   const g=foods.map(f=>Math.min(50,f.max)),n=(f,k)=>(k=="sat"?f.sat:f[k])/100,tot=k=>foods.reduce((s,f,i)=>s+g[i]*n(f,k),0);
-  let L=0;foods.forEach(f=>{K.forEach(k=>L+=2*W[k]*(n(f,k)/t[k])**2);L+=12*(n(f,"sat")/t.sat)**2});const st=1/L;
+  let L=0;foods.forEach(f=>{K.forEach(k=>L+=2*W[k]*(n(f,k)/t[k])**2);L+=12*(n(f,"sat")/t.sat)**2+2*RG/typ(f)**2});const st=1/L;
   for(let it=0;it<20000;it++){
     const r={};K.forEach(k=>r[k]=(tot(k)-t[k])/t[k]);const s=tot("sat"),sr=s>t.sat?(s-t.sat)/t.sat:0;let mv=0;
-    const gr=foods.map(f=>{let d=0;K.forEach(k=>d+=2*W[k]*r[k]*n(f,k)/t[k]);return d+12*sr*n(f,"sat")/t.sat});
-    foods.forEach((f,i)=>{const ng=Math.min(f.max,Math.max(0,g[i]-st*gr[i]));mv=Math.max(mv,Math.abs(ng-g[i]));g[i]=ng});
+    const gr=foods.map((f,i)=>{let d=0;K.forEach(k=>d+=2*W[k]*r[k]*n(f,k)/t[k]);return d+12*sr*n(f,"sat")/t.sat+2*RG*(g[i]-typ(f))/typ(f)**2});
+    foods.forEach((f,i)=>{const ng=Math.min(f.max,Math.max(lo(f),g[i]-st*gr[i]));mv=Math.max(mv,Math.abs(ng-g[i]));g[i]=ng});
     if(mv<1e-4)break}
   foods.forEach((f,i)=>g[i]=Math.round(g[i]/5)*5);
+  // Calorie top-up: add 5 g at a time to the best heart-friendly food (soluble-fiber foods favored) until within 3% of the meal's calorie target, never breaking the saturated-fat cap.
+  for(let n=0;n<400&&(tot("kcal")-t.kcal)/t.kcal<-.03;n++){let best=-1,bs=0;
+    foods.forEach((f,i)=>{if(g[i]+5>f.max||f.kcal<=0||tot("sat")+5*f.sat/100>t.sat*1.05||(tot("protein")+5*f.protein/100>t.protein*1.3&&f.protein/f.kcal>t.protein/t.kcal))return;const s=f.kcal*(1+f.fiber/10)/(g[i]/typ(f))**2;if(s>bs){bs=s;best=i}});
+    if(best<0)break;g[best]+=5}
   const T={};[...K,"sat"].forEach(k=>T[k]=tot(k));
   const dev={};K.forEach(k=>dev[k]=(T[k]-t[k])/t[k]*100);
   const why=foods.map((f,i)=>{const b=K.map(k=>({k,s:T[k]?g[i]*n(f,k)/T[k]:0})).sort((x,y)=>y.s-x.s)[0],o=[];
     if(b.s>.05)o.push("supplies "+Math.round(b.s*100)+"% of this meal’s "+b.k);if(g[i]>=f.max)o.push("limited by its maximum portion");if(g[i]==0)o.push("not needed to reach targets");return o.join("; ")});
   const iss=[];["kcal","protein","fiber"].forEach(k=>{if(Math.abs(dev[k])>15){const sh=dev[k]<0;let m=k+" is "+Math.round(Math.abs(dev[k]))+"% "+(sh?"below":"above")+" this meal’s target with these foods.";
-    if(sh){const have=new Set(foods.map(f=>f.id)),alt=FOODS.filter(f=>!have.has(f.id)&&f.kcal>0).sort((a,b)=>b[k]/b.kcal-a[k]/a.kcal).slice(0,3).map(f=>f.name);m+=" Consider adding: "+alt.join(", ")+"."}iss.push(m)}});
+    if(sh){const have=new Set(foods.map(f=>f.id)),sc=f=>k=="kcal"?((!f.fat||f.sat/f.fat<.3)?f.kcal*(1+f.fiber/10):0):f[k]/f.kcal,alt=FOODS.filter(f=>!have.has(f.id)&&f.kcal>0).sort((a,b)=>sc(b)-sc(a)).slice(0,3).map(f=>f.name);m+=" Consider adding: "+alt.join(", ")+"."}iss.push(m)}});
   if(T.sat>t.sat*1.05)iss.push("Saturated fat is above this meal’s limit. Consider swapping the highest saturated-fat food.");
   return{g,T,dev,why,iss}
 }
