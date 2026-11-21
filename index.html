@@ -34,8 +34,13 @@ const FOODS=[["Rolled oats (dry)",379,13.2,67.7,6.5,1.1,10.1,120,"Grains"],["Bro
 ["Walnuts",654,15.2,13.7,65.2,6.1,6.7,40,"Nuts & seeds"],["Almonds",579,21.2,21.6,49.9,3.8,12.5,40,"Nuts & seeds"],["Chia seeds",486,16.5,42.1,30.7,3.3,34.4,30,"Nuts & seeds"],["Flaxseeds",534,18.3,28.9,42.2,3.7,27.3,30,"Nuts & seeds"],
 ["Chicken breast (cooked)",165,31,0,3.6,1,0,200,"Protein"],["Salmon (cooked)",206,22.1,0,12.4,2.6,0,200,"Protein"],["Egg (boiled)",155,12.6,1.1,10.6,3.3,0,150,"Protein"],["Tofu (firm)",144,15.8,2.8,8.7,1.3,2.3,200,"Protein"],
 ["Red lentils (cooked)",116,9,20.1,0.4,0.05,7.9,300,"Legumes"],["Chickpeas (cooked)",164,8.9,27.4,2.6,0.3,7.6,250,"Legumes"],["Black beans (cooked)",132,8.9,23.7,0.5,0.1,8.7,250,"Legumes"],
-["Broccoli (cooked)",35,2.4,7.2,0.4,0.05,3.3,250,"Vegetables"],["Spinach (raw)",23,2.9,3.6,0.4,0.06,2.2,150,"Vegetables"],["Carrots (raw)",41,0.9,9.6,0.2,0.04,2.8,200,"Vegetables"]]
-.map((a,i)=>({id:i,name:a[0],kcal:a[1],protein:a[2],carbs:a[3],fat:a[4],sat:a[5],fiber:a[6],max:a[7],cat:a[8]}));
+["Broccoli (cooked)",35,2.4,7.2,0.4,0.05,3.3,250,"Vegetables"],["Spinach (raw)",23,2.9,3.6,0.4,0.06,2.2,150,"Vegetables"],["Carrots (raw)",41,0.9,9.6,0.2,0.04,2.8,200,"Vegetables"],
+["Cabbage (raw)",25,1.3,5.8,0.1,0.03,2.5,200,"Vegetables"],["Cauliflower (cooked)",23,1.8,4.1,0.5,0.1,2.3,250,"Vegetables"],["Green beans (cooked)",35,1.9,7.9,0.3,0.07,3.2,250,"Vegetables"],["Bell pepper (raw)",26,1,6,0.3,0.06,2.1,200,"Vegetables"],["Tomato (raw)",18,0.9,3.9,0.2,0.03,1.2,200,"Vegetables"],["Cucumber (raw)",15,0.7,3.6,0.1,0.04,0.5,300,"Vegetables"],["Asparagus (cooked)",22,2.4,4.1,0.2,0.05,2,250,"Vegetables"],["Eggplant (cooked)",35,0.8,8.7,0.2,0.03,2.5,250,"Vegetables"],["Okra (cooked)",22,1.9,4.5,0.2,0.04,2.5,200,"Vegetables"],["Pumpkin (cooked)",20,0.7,4.9,0.1,0.05,1.1,250,"Vegetables"],["Kale (raw)",35,2.9,4.4,1.5,0.18,4.1,100,"Vegetables"],["Beetroot (cooked)",44,1.7,10,0.2,0.03,2,200,"Vegetables"],["Mushrooms (raw)",22,3.1,3.3,0.3,0.05,1,200,"Vegetables"],["Zucchini (raw)",17,1.2,3.1,0.3,0.08,1,250,"Vegetables"],
+["Green peas (cooked)",84,5.4,15.6,0.2,0.04,5.5,150,"Legumes"],
+["Lean beef, sirloin (cooked)",183,29,0,6.9,2.7,0,250,"Protein"],["Ground beef 90% lean (cooked)",217,26.1,0,11.7,4.7,0,250,"Protein"],["Ground beef 80/20 full fat (cooked)",272,25.9,0,17.9,7,0,250,"Protein"],["Mutton/goat (cooked)",143,27.1,0,3,0.9,0,250,"Protein"],["Lamb (cooked, lean and fat)",258,25.6,0,16.5,7,0,250,"Protein",1],["Pork tenderloin (cooked)",143,26.2,0,3.5,1.2,0,250,"Protein"],["Pork chop (cooked, lean and fat)",231,26,0,13.5,4.8,0,250,"Protein",1],["Ground pork (cooked)",297,25.7,0,20.8,7.7,0,250,"Protein"],
+["Chicken cutlet (breaded, fried)",250,18,15,13,3,0.8,150,"Sri Lankan",1],["Fish cutlet (Sri Lankan, fried)",210,9,20,10,2.5,1.2,150,"Sri Lankan",1],["Sri Lankan chicken curry",170,14,3,11,5.5,0.5,300,"Sri Lankan",1],["Sri Lankan mutton curry",190,15,3,13,6,0.5,300,"Sri Lankan",1],["Sri Lankan fish curry",110,13,3,5,2.5,0.3,300,"Sri Lankan",1],["Dhal curry (coconut milk)",110,5,12,4.5,3.5,3,300,"Sri Lankan",1],
+["Strawberries",32,0.7,7.7,0.3,0.02,2,250,"Fruit"],["Orange",47,0.9,11.8,0.1,0.02,2.4,250,"Fruit"],["Pear",57,0.4,15.2,0.1,0.02,3.1,200,"Fruit"],["Papaya",43,0.5,10.8,0.3,0.08,1.7,250,"Fruit"],["Mango",60,0.8,15,0.4,0.09,1.6,200,"Fruit"],["Pineapple",50,0.5,13.1,0.1,0.01,1.4,250,"Fruit"],["Watermelon",30,0.6,7.6,0.2,0.02,0.4,300,"Fruit"],["Grapes",69,0.7,18.1,0.2,0.05,0.9,150,"Fruit"],["Guava",68,2.6,14.3,1,0.27,5.4,200,"Fruit"],["Kiwi",61,1.1,14.7,0.5,0.03,3,150,"Fruit"]]
+.map((a,i)=>({id:i,name:a[0],kcal:a[1],protein:a[2],carbs:a[3],fat:a[4],sat:a[5],fiber:a[6],max:a[7],cat:a[8],est:!!a[9]}));
 const SPLIT={Breakfast:.25,Lunch:.35,Dinner:.30,Snack:.10},FACT={sedentary:1.2,light:1.375,moderate:1.55,very:1.725};
 const W={protein:3,fiber:2.5,kcal:2,fat:1,carbs:1},K=["kcal","protein","carbs","fat","fiber"];
 let P=[];try{P=JSON.parse(localStorage.getItem("profiles")||"[]")}catch(e){}
@@ -110,7 +115,7 @@ function viewProfiles(){
   $("v1").innerHTML=cards+`<div class="card"><h2 id="ft">Add a profile</h2><div class="g">
   <label>Full name<input id="n"></label><label>Date of birth<input id="dob" type="date"></label>
   <label>Sex<select id="sex"><option value="female">Female</option><option value="male">Male</option></select></label>
-  <label>Height (cm)<input id="h" type="number" inputmode="decimal"></label><label>Weight (kg)<input id="w" type="number" inputmode="decimal"></label>
+  <label>Height (inches)<input id="h" type="number" inputmode="decimal"></label><label>Weight (lb)<input id="w" type="number" inputmode="decimal"></label>
   <label>Activity<select id="act"><option value="sedentary">Sedentary</option><option value="light">Lightly active</option><option value="moderate">Moderately active</option><option value="very">Very active</option></select></label>
   <label>Goal<select id="goal"><option value="maintain">Maintain weight</option><option value="lose">Lose weight</option><option value="gain">Gain weight</option><option value="cholesterol">Improve cholesterol levels</option><option value="health">Maintain overall health</option></select></label>
   </div><p class="mut">Blood test results are added on each profile after saving.</p>
@@ -123,18 +128,26 @@ function viewProfiles(){
     P[i].labs=(P[i].labs||[]).filter(y=>y.date!=d).concat(x);save();viewProfiles()});
   document.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const[i,d]=b.dataset.x.split("|");if(confirm("Delete this test?")){P[+i].labs=P[+i].labs.filter(y=>y.date!=d);save();viewProfiles()}});
   let ed=-1;
-  $("sv").onclick=()=>{const p={name:$("n").value.trim(),dob:$("dob").value,sex:$("sex").value,h:+$("h").value,w:+$("w").value,act:$("act").value,goal:$("goal").value};
-    if(!p.name||!p.dob||!(p.h>=100&&p.h<=250)||!(p.w>=30&&p.w<=300)){$("er").textContent="Please enter a name, date of birth, height (100–250 cm) and weight (30–300 kg).";return}
+  $("sv").onclick=()=>{const p={name:$("n").value.trim(),dob:$("dob").value,sex:$("sex").value,h:+$("h").value*2.54,w:+$("w").value/2.20462,act:$("act").value,goal:$("goal").value};
+    if(!p.name||!p.dob||!(p.h>=100&&p.h<=250)||!(p.w>=30&&p.w<=300)){$("er").textContent="Please enter a name, date of birth, height (40–98 inches) and weight (66–660 lb).";return}
     p.labs=ed>=0?(P[ed].labs||[]):[];p.id=ed>=0?P[ed].id:Math.random().toString(36).slice(2);if(ed>=0)P[ed]=p;else P.push(p);save();viewProfiles()};
   document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{if(confirm("Delete this profile?")){P.splice(+b.dataset.d,1);save();viewProfiles()}});
-  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ed=+b.dataset.e;const p=P[ed];["n:name","dob:dob","sex:sex","h:h","w:w","act:act","goal:goal"].forEach(s=>{const[a,k]=s.split(":");$(a).value=p[k]||""});$("ft").textContent="Edit profile";$("ft").scrollIntoView()});
+  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ed=+b.dataset.e;const p=P[ed];["n:name","dob:dob","sex:sex","h:h","w:w","act:act","goal:goal"].forEach(s=>{const[a,k]=s.split(":");$(a).value=p[k]||""});$("h").value=+(p.h/2.54).toFixed(1);$("w").value=+(p.w*2.20462).toFixed(1);$("ft").textContent="Edit profile";$("ft").scrollIntoView()});
 }
+function note(p,fs,r,sh){
+ const t=targets(p),bmi=p.w/((p.h/100)**2),ad=age(p.dob)>=18,g=p.goal;
+ const b=ad?(bmi<18.5?"below the healthy range":bmi<25?"in the healthy range":bmi<30?"above the healthy range":"well above the healthy range"):null;
+ const on=re=>fs.filter((f,i)=>r.g[i]>0&&re.test(f.name)).map(f=>f.name.replace(/ \(.*\)/,"").toLowerCase());
+ const sol=on(/oat|bean|lentil|chickpea|chia|flax|apple|pear|orange|guava|avocado|pea|okra|carrot|beet/),ug=on(/walnut|almond|avocado|flax|chia|salmon|tofu/);
+ const lim=t.sat*sh,sat=r.T.sat,pct=Math.round(r.T.kcal/(t.kcal*sh)*100);
+ const adv=b&&bmi<18.5&&g=="lose"?"A weight-loss goal may not suit this BMI, so please check with a healthcare professional.":b&&bmi<18.5&&g!="gain"?"You may want to consider a weight-gain goal; ask a healthcare professional.":b&&bmi>=25&&g!="lose"?"Since your BMI is above the healthy range, consider whether a gentle weight-loss goal suits you, and ask a healthcare professional.":"Your goal and this portion size are consistent with your BMI.";
+ return `<div class="mut" style="margin-top:8px"><p><b>For your LDL:</b> saturated fat is ${sat.toFixed(1)} g, ${sat<=lim*1.05?"within":"above"} this meal’s limit of ${lim.toFixed(1)} g.${sol.length?` Soluble-fiber foods here (${sol.join(", ")}) are part of a heart-healthy eating pattern.`:" Adding oats, beans, lentils, apples or chia would add soluble fiber."}${ug.length?` Unsaturated-fat foods: ${ug.join(", ")}.`:""}</p><p><b>For your weight:</b> this meal gives ${pct}% of the energy planned for it. ${b?`Your BMI is ${bmi.toFixed(1)}, ${b}. `:""}${adv}</p><p>Educational only: food choices can support heart health, but no cholesterol or weight result is guaranteed. Not medical advice.</p></div>`}
 function viewMeal(){
   if(!P.length){$("v2").innerHTML='<div class="card">Add a profile first.</div>';return}
-  const cats=[...new Set(FOODS.map(f=>f.cat))],EM={Grains:"🌾",Dairy:"🥛",Fruit:"🍎","Nuts & seeds":"🥜",Protein:"🍗",Legumes:"🫘",Vegetables:"🥦"};
+  const cats=[...new Set(FOODS.map(f=>f.cat))],EM={Grains:"🌾",Dairy:"🥛",Fruit:"🍎","Nuts & seeds":"🥜",Protein:"🍗",Legumes:"🫘",Vegetables:"🥦","Sri Lankan":"🍛"};
   $("v2").innerHTML=`<div class="card"><h2>Whose meal?</h2><div class="chips">${P.map((p,i)=>`<label><input type="checkbox" class="pp" value="${i}" ${i==0?"checked":""}>${esc(p.name)}</label>`).join("")}</div>
   <label>Meal<select id="slot">${Object.keys(SPLIT).map(s=>`<option>${s}</option>`).join("")}</select></label></div>
-  <div class="card"><h2>Choose foods</h2>${cats.map(c=>`<div class="cat">${EM[c]||""} ${c}</div><div class="chips">${FOODS.filter(f=>f.cat==c).map(f=>`<label><input type="checkbox" class="ff" value="${f.id}">${esc(f.name)}</label>`).join("")}</div>`).join("")}
+  <div class="card"><h2>Choose foods</h2>${cats.map(c=>`<div class="cat">${EM[c]||""} ${c}</div><div class="chips">${FOODS.filter(f=>f.cat==c).map(f=>`<label><input type="checkbox" class="ff" value="${f.id}">${esc(f.name)}${f.est?" ≈":""}</label>`).join("")}</div>`).join("")}
   <p><button class="pri" id="go">Calculate portions</button></p></div><div id="out"></div>`;
   $("go").onclick=()=>{
     const who=[...document.querySelectorAll(".pp:checked")].map(x=>P[+x.value]),fs=[...document.querySelectorAll(".ff:checked")].map(x=>FOODS[+x.value]);
@@ -146,7 +159,7 @@ function viewMeal(){
     $("out").innerHTML=`<div class="card"><h2>Recommended quantities</h2><div class="scroll"><table>${head}${rows}${kc}</table></div></div>`+
      who.map((p,j)=>`<div class="card"><h2>Why: ${esc(p.name)}</h2><ul>${fs.map((f,i)=>`<li>${esc(f.name)} ${R[j].g[i]} g${R[j].why[i]?" — "+R[j].why[i]:""}</li>`).join("")}</ul>
       <div class="mut">Protein ${Math.round(R[j].T.protein)} g · Carbs ${Math.round(R[j].T.carbs)} g · Fat ${Math.round(R[j].T.fat)} g · Sat. fat ${R[j].T.sat.toFixed(1)} g · Fiber ${Math.round(R[j].T.fiber)} g</div>
-      ${R[j].iss.map(x=>`<p class="warn">⚠ ${esc(x)}</p>`).join("")}</div>`).join("")+`<p class="mut">Quantities are in grams as listed (cooked or dry, per the food name). Values are estimates.</p>`+`<div class="card"><h2>Happy with it? Log it ✅</h2>${who.map((p,j)=>`<button class="pri" data-l="${j}">${esc(p.name)} ate this</button>`).join(" ")}</div>`;
+      ${note(p,fs,R[j],sh)}${R[j].iss.map(x=>`<p class="warn">⚠ ${esc(x)}</p>`).join("")}</div>`).join("")+`<p class="mut">Quantities are in grams as listed (cooked or dry, per the food name). Values are estimates.${fs.some(f=>f.est)?" Foods marked ≈ are recipe-dependent rough estimates. Adjust them if your recipe differs.":""}</p>`+`<div class="card"><h2>Happy with it? Log it ✅</h2>${who.map((p,j)=>`<button class="pri" data-l="${j}">${esc(p.name)} ate this</button>`).join(" ")}</div>`;
     document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{const j=+b.dataset.l,p=who[j],T=R[j].T,d=ds(new Date());LOG[p.id]=LOG[p.id]||{};const e=LOG[p.id][d]=LOG[p.id][d]||{kcal:0,protein:0,carbs:0,fat:0,fiber:0,sat:0,n:0};[...K,"sat"].forEach(k=>e[k]+=T[k]);e.n++;saveLog();b.disabled=true;b.textContent="Logged ✓";confetti()});
   }
 }
